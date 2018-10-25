@@ -1,151 +1,63 @@
-<html>
+<!doctype html>
+<html class="no-js" lang="">
+
 <head>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title>Converter</title>
+	<meta name="description" content="Converter">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        #gameboard {
-            width: 1024px;
-            height: 1024px;
-            border: 1px solid black;
-            border-radius: 50%;
-            zoom: 0.75;
-			float: left;
-        }
-		#events {
-			float: right;
+	<link rel="apple-touch-icon" href="icon.png">
+	<link rel="stylesheet" href="normalize.css">
+	<link rel="stylesheet" href="main.css">
+
+	<script src="rules.js"></script>
+	<script src="jquery.js"></script>
+
+	<script>
+	$(function() {
+		var hasClipboard = false;
+		
+		function convert(val, rules) {
+			var output = val;
+			
+			for (rule in rules) {
+				output = output.replace(rule.from, rule.to);
+			}
+			
+			return output;
 		}
-
-        .t0 {
-            background-color: red;
-            border-color: red;
-            color: red;
-        }
-
-        .t1 {
-            background-color: blue;
-            border-color: blue;
-            color: blue;
-        }
-
-        .t2 {
-            background-color: green;
-            border-color: green;
-            color: green;
-        }
-
-        .flag {
-            position: absolute;
-            display: 'inline-block';
-            width: 32px;
-            height: 32px;
-            z-index: -1;
-            border-radius: 50%;
-            box-shadow: 0px 0px 6px 6px;
-            border: 6px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .projectile {
-            position: absolute;
-            background-color: white;
-            display: 'inline-block';
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            border-width: 1px;
-            border-style: solid;
-        }
-
-        .ship {
-            position: absolute;
-            display: 'inline-block';
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            color: white;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="player.js"></script>
-    <script>
-        var ships = {};
-        var projectiles = {};
-        var flags = {};
-
-        var rules = {};
-
-        var progressHandler = function(p) {
-            $('#loading').text("Loading " + parseInt(p * 100) + "%");
-
-            if (p >= 1) {
-                player.play();
-                rules = player.game.Rules;
-            }
-        }
-
-        var frameHandler = function(frame) {
-            for (var p in projectiles) {
-                projectiles[p].remove();
-            }
-
-            projectiles = {};
-
-            for (var i = 0; i < frame.Teams.length; i++) {
-                var team = frame.Teams[i];
-                for (var j = 0; j < team.Ships.length; j++) {
-                    var ship = team.Ships[j];
-                    var shipNode = ships[ship.Id];
-                    if (!shipNode) {
-                        shipNode = $('<div class="ship t' + i + '" />');
-                        $('#gameboard').append(shipNode);
-                        ships[ship.Id] = shipNode;
-                    }
-
-                    shipNode.css("left", ship.Bounds.Center.X + rules.ArenaRadius);
-                    shipNode.css("top", ship.Bounds.Center.Y + rules.ArenaRadius);
-                    shipNode.css("transform", "rotate(" + ship.Rotation + "rad)")
-                }
-
-                for (var j = 0; j < team.Projectiles.length; j++) {
-                    var projectile = team.Projectiles[j];
-                    var projectileNode = projectiles[projectile.Id];
-                    if (!projectileNode) {
-                        projectileNode = $('<div class="projectile t' + i + '" />');
-                        $('#gameboard').append(projectileNode);
-                        projectiles[projectile.Id] = projectileNode;
-                    }
-
-                    projectileNode.css("left", projectile.Bounds.Center.X + rules.ArenaRadius);
-                    projectileNode.css("top", projectile.Bounds.Center.Y + rules.ArenaRadius);
-                }
-
-                var flag = team.Flag;
-                var flagNode = flags[flag.Id];
-                if (!flagNode) {
-                    flagNode = $('<div class="flag t' + i + '" />');
-                    $('#gameboard').append(flagNode);
-                    flags[flag.Id] = flagNode;
-                }
-
-                flagNode.css("left", flag.Bounds.Center.X + rules.ArenaRadius);
-                flagNode.css("top", flag.Bounds.Center.Y + rules.ArenaRadius);
-            }
-
-            for (var i = 0; i < frame.Events.length; i++) {
-                $('#events').append($('<div/>').text("Turn " + frame.TurnNumber + ": " + frame.Events[i]));
-            }
-        }
-
-        var player = new Player("game.json", progressHandler, frameHandler);
-        player.setPlaybackFps(60);
-
-    </script>
+		
+		$('#zawgyi').on('change, keyup', function() {
+			var output = convert($(this).val(), zg2uni);
+			$('#unicode').val(output);
+			if (hasClipboard) {
+				navigator.clipboard.writeText(output)
+			}
+		});
+		
+		$('#unicode').on('change, keyup', function() {
+			var output = convert($(this).val(), uni2zg);
+			$('#zawgyi').val(output);
+			if (hasClipboard) {
+				navigator.clipboard.writeText(output)
+			}
+		});
+		
+		navigator.permissions.query({name:'clipboard-write'}).then(function(result) {
+			hasClipboard = result.state == 'granted';
+		});
+	});
+	</script>
 </head>
+
 <body>
-    <div id="gameboard">
-    </div>
-    <div id="loading"></div>
-    <div id="events"></div>
+	<!--div class="text-label" id="unicode-label">Unicode</div-->
+	<textarea class="common-text" id="unicode"></textarea>
+	
+	<!--div class="text-label" id="zawgyi-label">Zawgyi</div-->
+	<textarea class="common-text" id="zawgyi"></textarea>
 </body>
+
 </html>
