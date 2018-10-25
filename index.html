@@ -29,7 +29,7 @@
 			return output;
 		}
 		
-		$('#zawgyi').on('change, keyup', function() {
+		$('#zawgyi').on('input', function() {
 			var output = convert($(this).val(), zg2uni);
 			$('#unicode').val(output);
 			if (hasClipboard) {
@@ -37,7 +37,7 @@
 			}
 		});
 		
-		$('#unicode').on('change, keyup', function() {
+		$('#unicode').on('input', function() {
 			var output = convert($(this).val(), uni2zg);
 			$('#zawgyi').val(output);
 			if (hasClipboard) {
@@ -47,6 +47,10 @@
 		
 		navigator.permissions.query({name:'clipboard-write'}).then(function(result) {
 			hasClipboard = result.state == 'granted';
+			
+			result.onchange = function() { 
+				hasClipboard = result.state == 'granted'
+			}
 		});
 	});
 	</script>
