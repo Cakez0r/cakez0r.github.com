@@ -17,40 +17,41 @@
 
 	<script>
 	$(function() {
-		var hasClipboard = false;
+		function copy(text) {
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(text)
+			}
+			else {
+				var textArea = document.createElement("textarea");
+				textArea.value = text;
+				document.body.appendChild(textArea);
+				textArea.focus();
+				textArea.select();
+
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+			}
+		}
 		
 		function convert(val, rules) {
 			var output = val;
 			
-			for (rule in rules) {
+			for (rule of rules) {
 				output = output.replace(rule.from, rule.to);
 			}
-			
 			return output;
 		}
 		
-		$('#zawgyi').on('input', function() {
+		$('#zawgyi').on('change', function() {
 			var output = convert($(this).val(), zg2uni);
 			$('#unicode').val(output);
-			if (hasClipboard) {
-				navigator.clipboard.writeText(output)
-			}
+			copy(output);
 		});
 		
-		$('#unicode').on('input', function() {
+		$('#unicode').on('change', function() {
 			var output = convert($(this).val(), uni2zg);
 			$('#zawgyi').val(output);
-			if (hasClipboard) {
-				navigator.clipboard.writeText(output)
-			}
-		});
-		
-		navigator.permissions.query({name:'clipboard-write'}).then(function(result) {
-			hasClipboard = result.state == 'granted';
-			
-			result.onchange = function() { 
-				hasClipboard = result.state == 'granted'
-			}
+			copy(output);
 		});
 	});
 	</script>
