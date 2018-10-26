@@ -42,13 +42,13 @@
 			return output;
 		}
 		
-		$('#zawgyi').on('change', function() {
+		$('#zawgyi').on('keyup touchend', function() {
 			var output = convert($(this).val(), zg2uni);
 			$('#unicode').val(output);
 			copy(output);
 		});
 		
-		$('#unicode').on('change', function() {
+		$('#unicode').on('keyup touchend', function() {
 			var output = convert($(this).val(), uni2zg);
 			$('#zawgyi').val(output);
 			copy(output);
@@ -58,11 +58,15 @@
 </head>
 
 <body>
-	<!--div class="text-label" id="unicode-label">Unicode</div-->
-	<textarea class="common-text" id="unicode"></textarea>
+	<div class="container" id="unicode-container">
+		<div class="label">Unicode</div>
+		<textarea class="common-text" id="unicode"></textarea>
+	</div>
 	
-	<!--div class="text-label" id="zawgyi-label">Zawgyi</div-->
-	<textarea class="common-text" id="zawgyi"></textarea>
+	<div class="container" id="zawgyi-container">
+		<div class="label">Zawgyi</div>
+		<textarea class="common-text" id="zawgyi"></textarea>
+	</div>
 </body>
 
 </html>
